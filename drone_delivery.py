@@ -6,6 +6,7 @@ Flight Aid
 Built by: Lisa Lu for HackMIT 2016
 Based off of DroneKit's baseline drone delivery example, this web app allows for
 order placement and gives an estimated time of arrival for packages for users.
+Styling inspired by Tubik Studio's slider design on CodePen
 --------------------------------------------------------------------------------
 © Drone Delivery Example Copyright 2015-2016, 3D Robotics.
 drone_delivery.py:
