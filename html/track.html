@@ -1,0 +1,134 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		{% include 'head.html' %}
+	</head>
+	<body>
+		<div class='container' id='refresh-vehicle'>
+			{% import 'header.html' as header %}
+			<div class='header'>
+				<nav>
+					{{ header.navigation(options.menu, options.current_url, 'nav nav-pills pull-right') }}
+				</nav>
+				<h3 class='text-muted'>Flight Aid</h3>
+			</div>
+			<div class='row marketing'>
+				<p id = "greeting"></p>
+				{% import 'mapbox.html' as mapbox%}
+				<div id='staticMap' class='col-lg-12'>
+					{{ mapbox.static_map_with_marker(options, options.current_coords, options.current_coords) }}
+				</div>
+			</div>
+			<div class='row marketing'>
+				<div class='col-lg-12'>
+					<form class="form-inline">
+						<div class='form-group'>
+							Latitude:
+							<input disabled class='form-control' type="text" name="lat" id="lat" placeholder="Latitude" value="{{ options.current_coords[0] }}" />
+						</div>
+						<div class='form-group'>
+							Longitude:
+							<input disabled class='form-control' type="text" name="lon" id="lon" placeholder="Longitude" value="{{ options.current_coords[1] }}" />
+						</div>
+						<div class="form-group">
+							Goal Latitude:
+							<input disabled class='form-control' type="text" name="goal_lat" id="goal_lat" placeholder="Goal Latitude" value="{{ options.goal_lat }}" />
+						</div>
+						<div class="form-group">
+							Goal Longitude:
+							<input disabled class="form-control" type="text" name="goal_lon" id="goal_lon" placeholder="Goal Longitude" value="{{ options.goal_lon }}" />
+						</div>
+						<div class="form-group" id="ETAbox">
+							ETA:
+							<input disabled class="form-control" type="text" name="eta" id="eta" placeholder="ETA" value="0" />
+						</div>
+						<!--<button class='btn btn-default'>Update</button>-->
+					</form>
+				</div>
+			</div>
+			<footer class='footer'>
+				<p>&copy; Elif, Lisa, Adam, Jess | Thanks to DroneKit!</p>
+			</footer>
+		</div>
+		{% include 'bottom-scripts.html' %}
+		<script type="text/javascript" charset="utf-8">
+			(function($){
+				var fixCoords = function(current_coords){
+					var new_coords = [];
+					for(var i = 0; i < current_coords.length; i++){
+						new_coords.push(parseFloat(current_coords[i]).toFixed(6));
+					}
+					return new_coords;
+				};
+				var filterFloat = function (value) {
+    			if(/^(\-|\+)?([0-9]+(\.[0-9]+)?|Infinity)$/
+      			.test(value))
+      		return Number(value);
+  			return NaN;
+				}
+				var mapboxStatic = function(current_coords, options){
+					var markers = markerString(current_coords);
+					var imageUrl  = 'http://api.tiles.mapbox.com/v4/' +
+						options.mapid + '/' +
+						markers + '/' +
+						current_coords.join(',') + ',' +
+						options.zoom + '/' +
+						options.width + 'x' + options.height + '.png' +
+						'?access_token=' + options.access_token;
+					return imageUrl;
+				};
+				var markerString = function(current_coords){
+					return 'pin-m-heliport+f86767(' + current_coords.reverse().join(',') + ')'
+				};
+				/*var goalCoords = [{{ options.goal_lat }}, {{ options.goal_lon }}];
+				var goalMarker = L.marker(goalCoords, {
+					icon: L.mapbox.marker.icon({
+						'marker-color': '#f86767'
+					})
+				});
+				goalMarker.addTo(map)*/
+				var options = JSON.parse('{{ options.json }}');
+				options.home_coords.reverse()
+				options.current_coords = fixCoords(options.current_coords);
+				var myVar = setInterval(function(){
+					$.getJSON('/vehicle', function(data){
+						console.log('[Update] home: ', options.home_coords, ' vehicle: ', data.position);
+						$('#staticMap img').prop('src', mapboxStatic(fixCoords(data.position), options));
+						$('#lat').val(data.position[0]);
+						$('#lon').val(data.position[1]);
+						var lat2 = $(goal_lat).val();
+						var lat1 = data.position[0];
+						var lon2 = $(goal_lon).val();
+						var lon1 = data.position[1];
+						var R = 6371; // km
+						var dLat = toRad(lat2-lat1);
+						var dLon = toRad(lon2-lon1);
+						var lat1 = toRad(lat1);
+						var lat2 = toRad(lat2);
+						function toRad(Value) {
+						    /** Converts numeric degrees to radians */
+						    return Value * Math.PI / 180;
+						}
+						var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+        Math.sin(dLon/2) * Math.sin(dLon/2) * Math.cos(lat1) * Math.cos(lat2);
+						var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+						var d = R * c;
+						var time = (1000/180)*Math.sqrt(d);
+						if (time < .20){
+							time = Math.floor(time);
+							$("#eta").val("Package delivered!");
+						}
+						else{
+							time = Math.ceil(time);
+							if (time == 1)
+								$("#eta").val(time + " minute left");
+							else
+								$("#eta").val(time + " minutes left"); // miles
+						}
+						$("#greeting").text("Hang tight,  " + options.name + ", your " + options.medicine + " will be delivered in less than " + time + " minute(s)!");
+					});
+				}, 1000);
+			}(jQuery));
+		</script>
+	</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		{% include 'head.html' %}
+	</head>
+	<body>
+		<div class='container'>
+			{% import 'header.html' as header %}
+			<div class='header'>
+				<nav>
+					{{ header.navigation(options.menu, options.current_url, 'nav nav-pills pull-right') }}
+				</nav>
+				<h3 class='text-muted'>Flight Aid</h3>
+			</div>
+			<div class='jumbotron'>
+				<h1>Emergency Medicine Delivery</h1>
+				<img src="https://scontent.xx.fbcdn.net/v/t35.0-12/14393885_10205852867994503_541743593_o.jpg?oh=f32fefec27d7b302f6c73ee0c69d6507&oe=57E00675" style="width:600px">
+				<p class='lead'>
+					Sometimes you can't always make it to the pharmacy. Get your medicine
+					delivered today by a Flight Aid drone!
+				</p>
+				<p>
+					<a class='btn btn-lg btn-success' href='/track'>Track</a>
+				</p>
+				<div class='row marketing'>
+					<div class='col-lg-6'>
+						<p><div id="indexmap"></div></p>
+					</div>
+					<div class='col-lg-12'>
+						<form class="form-inline" action="/track" method="POST">
+							<div class='form-group'>
+								<input class='form-control' type="text" name="lat" id="lat" placeholder="Latitude" value="" />
+							</div>
+							<div class='form-group'>
+								<input class='form-control' type="text" name="lon" id="lon" placeholder="Longitude" value="" />
+							</div><br>
+							<div class='form-group'>
+								<input class='form-control' type="text" name="name" id="name" placeholder="Name" value="" />
+							</div>
+							<select class="selectpicker" name="medicine">
+								<option value="insulin">Insulin</option>
+								<option value="epipen">Epipen</option>
+								<option value="inhaler">Inhaler</option>
+							</select>
+							<button type="submit" class="btn btn-default">Go</button>
+						</form>
+					</div>
+				</div>
+			</div>
+			<footer class='footer'>
+				<p>&copy; Elif, Lisa, Adam, Jess | Thanks to DroneKit!</p>
+			</div>
+		</div>
+		{% include 'bottom-scripts.html' %}
+		<script type="text/javascript" charset="utf-8">
+			L.mapbox.accessToken = '{{options.access_token}}';
+			var currentCoords = [{{ options.current_coords[0] }}, {{ options.current_coords[1] }}];
+			var homeCoords = [{{ options.home_coords[0] }}, {{ options.home_coords[1] }}];
+			var homeMarker = L.marker(homeCoords, {
+				icon: L.mapbox.marker.icon({
+					'marker-size': 'small',
+					'marker-symbol': 'building',
+					'marker-color': '#fa0'
+				})
+			});
+			var vehicleMarker = function(location){
+				return L.marker(location, {
+					'marker-size': 'large',
+					'marker-symbol': 'heliport',
+					'marker-color': '#fa0'
+				})
+			}
+			var map = L.mapbox.map('indexmap', '{{options.mapid}}');
+			var userMarker = L.marker([0, 0], {
+				icon: L.mapbox.marker.icon({
+					'marker-color': '#f86767'
+				}),
+				draggable: true
+			});
+
+			homeMarker.addTo(map);
+			vehicleMarker(currentCoords).addTo(map);
+			userMarker.addTo(map);
+			map.setView(currentCoords, {{ options.zoom }});
+			map.on('click', function(event) {
+				userMarker.setLatLng(event.latlng)
+				$('#lat').val(event.latlng.lat);
+				$('#lon').val(event.latlng.lng);
+			});
+		</script>
+	</body>
+</html>

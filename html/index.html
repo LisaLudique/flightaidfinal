@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html >
+  <head>
+    <meta charset="UTF-8">
+    <title>Flight Aid</title>
+    {% include 'head.html' %}
+  </head>
+
+  <body>
+
+    <div class="slider-wrapper">
+  <div class="slider">
+    <div class="slide-navigation__squares">
+      <div class="squares-wrapper">
+      </div>
+    </div>
+    <div class="slides-container">
+      <div class="slide-wrapper">
+        <div class="slide" data-order="1">
+          <img src="https://scontent.xx.fbcdn.net/v/t35.0-12/14393885_10205852867994503_541743593_o.jpg?oh=f32fefec27d7b302f6c73ee0c69d6507&oe=57E00675" alt="" />
+          <div class="slide-content">
+            <h1>Flight Aid</h1>
+            <h2>Prescription Medicine Delivery</h2>
+            <div class="slide-txt">
+              <p>Sometimes you can't always make it to the pharmacy. Get your medicine delivered today by a Flight Aid drone!</p>
+              <a href='/order'><button>Order</button></a>
+            </div>
+          </div>
+         </div>
+      </div>
+    </div>
+    <div class="slide-navigation__txt">
+      <ul>
+        <li><span data-order="1">Home</span></li>
+        <li><a href="/order"><span data-order="2">Order Drone</span></a></li>
+        <li><a href="/track"><span data-order="3">Track</span></a></li>
+      </ul>
+    </div>
+  </div>
+</div>
+  {% include 'bottom-scripts.html' %}
+  </body>
+</html>
